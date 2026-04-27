@@ -247,5 +247,79 @@ def productos_por_categoria():
 def inicio():
     return render_template('index.html')
 
+@app.route('/categorias',methods=['POST'])
+def insertar_categoria():
+    data = request.json
+    nombre = data['nombre']
+    #insertar en la 80
+    cursor = mysql.connection.cursor()
+    sql = '''INSERT INTO categoria (nombre)
+             VALUES (%s)'''
+    cursor.execute(sql,(nombre,))
+    mysql.connection.commit()
+    cursor.close()
+    return jsonify({"mensaje":"Categoria registrada con exito"}),201
+
+@app.route('/productos', methods=['POST'])
+def crear_producto():
+    data = request.get_json()
+    nombre = data['nombre']
+    precio = data['precio']
+    stock = data['stock']
+    categoria_id = data['categoria_id']
+    
+    cursor = mysql.connection.cursor()
+    sql = """INSERT INTO producto(nombre,precio,stock,categoria_id)
+            VALUES (%s, %s, %s, %s)"""
+    
+    cursor.execute(sql, (nombre , precio, stock, categoria_id,))
+    mysql.connection.commit()
+    cursor.close()
+
+    return jsonify({"mensaje":"Producto insertado"}),201
+    
+@app.route('/categorias/<int:id>',methods=['PUT'])
+def modificar_categoria(id):
+    data = request.get_json()
+    nombre = data['nombre']
+    cursor = mysql.connection.cursor()
+    sql = '''UPDATE categoria SET nombre = %s WHERE id = %s'''
+    cursor.execute(sql,(nombre,id,))
+    mysql.connection.commit()
+    cursor.close()
+    return jsonify({"mensaje":"Categoria modificada"}),200
+
+@app.route('/productos/<int:id>', methods=['PUT'])
+def actualizar_producto(id):
+    data = request.get_json()
+
+    nombre = data['nombre']
+    precio = data['precio']
+    stock = data['stock']
+    categoria_id = data['categoria_id']
+
+    cursor = mysql.connection.cursor()
+    sql = """ UPDATE producto
+                   SET nombre = %s,  precio = %s,  stock = %s, categoria_id = %s
+                   WHERE id = %s """
+
+    cursor.execute(sql, (nombre , precio, stock, categoria_id , id,))
+
+    mysql.connection.commit()
+    cursor.close()
+
+    return jsonify({"mensaje": "Producto actualizado correctamente"}), 200
+
+@app.route('/categoria/<int:id>',methods=['DELETE'])
+def eliminar_categoria(id):
+    cursor = mysql.connection.cursor()
+    sql = '''DELETE FROM categoria WHERE id = %s'''
+    cursor.execute(sql)
+    mysql.connection.commit()
+    cursor.close()
+
+    return jsonify({"mensaje":"Categoria eliminada"}),200
+
+
 if __name__ == "__main__":
     app.run(debug=True)
