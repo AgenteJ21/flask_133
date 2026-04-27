@@ -313,6 +313,15 @@ def actualizar_producto(id):
 @app.route('/categoria/<int:id>',methods=['DELETE'])
 def eliminar_categoria(id):
     cursor = mysql.connection.cursor()
+    #buscar categoria (otro modo de eliminar categoria)
+    sql = '''SELECT nombre FROM categorias WHERE id = %s'''
+    cursor.execute(sql,(id,))
+    datos = cursor.fetchall()
+    if datos is None:
+        return jsonify({"mensaje":"Categoria no existe"})
+        ##por completar y corregir
+
+    ##cursor = mysql.connection.cursor()
     sql = '''DELETE FROM categoria WHERE id = %s'''
     cursor.execute(sql)
     mysql.connection.commit()
